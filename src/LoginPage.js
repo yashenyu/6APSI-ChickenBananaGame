@@ -1,21 +1,36 @@
 import React, { useState } from 'react';
 
-function LoginPage() {
- 
+function LoginPage({ goToLanding }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = () => {
+    if (username && password) {
+      setError('');
+      goToLanding();
+    } else {
+      setError('Both fields are required');
+    }
+  };
+
   return (
-    <div>
+    <div className="login-container">
       <h2>Login</h2>
       <input
         type="text"
         placeholder="Username"
-       
-      /><br />
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
       <input
         type="password"
         placeholder="Password"
-     
-      /><br />
-      <button >Login</button>
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button onClick={handleLogin}>Login</button>
+      {error && <p className="error-message">{error}</p>}
     </div>
   );
 }
