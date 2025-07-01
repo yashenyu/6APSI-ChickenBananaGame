@@ -5,7 +5,7 @@ let clients = [];
 let gameState = {
   board: [],
   clickedIndices: [],
-  playerTypes: {}, // clientId => 'chicken' | 'banana'
+  playerTypes: {}, 
   gameOver: false,
   winner: null,
 };
@@ -21,7 +21,6 @@ function generateBoard(size = 12) {
   return images;
 }
 
-// Initialize board at server start
 gameState.board = generateBoard();
 
 wss.on('connection', function connection(ws) {
@@ -29,7 +28,6 @@ wss.on('connection', function connection(ws) {
   console.log('New client connected:', id);
   clients.push({ id, ws });
 
-  // Assign player type if not assigned yet
   if (!gameState.playerTypes[id]) {
     if (Object.values(gameState.playerTypes).includes('chicken')) {
       gameState.playerTypes[id] = 'banana';
@@ -38,7 +36,6 @@ wss.on('connection', function connection(ws) {
     }
   }
 
-  // Send initial state + player info
   ws.send(JSON.stringify({
     type: 'init',
     state: gameState,
@@ -54,7 +51,6 @@ wss.on('connection', function connection(ws) {
       const playerType = gameState.playerTypes[id];
       const clickedImage = gameState.board[idx];
 
-      // Check mistake (clicked wrong tile)
       if (
         (playerType === 'chicken' && clickedImage !== 'chicken') ||
         (playerType === 'banana' && clickedImage !== 'banana')
@@ -64,7 +60,6 @@ wss.on('connection', function connection(ws) {
       } else if (!gameState.clickedIndices.includes(idx)) {
         gameState.clickedIndices.push(idx);
 
-        // Check if player completed all their tiles
         const target = playerType;
         const totalTarget = gameState.board.filter(i => i === target).length;
         const playerClicks = gameState.clickedIndices.filter(i => gameState.board[i] === target).length;
@@ -104,4 +99,4 @@ wss.on('connection', function connection(ws) {
   });
 });
 
-console.log('WebSocket server running on ws://localhost:8080');
+console.log('Server Running');
