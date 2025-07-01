@@ -14,7 +14,7 @@ function App() {
   const wsRef = useRef(null);
 
   // Change this to your server's IP if testing on another device on LAN
-  const SERVER_URL = 'ws://172.18.0.171:8080';
+  const SERVER_URL = 'ws://localhost:8080';
 
   useEffect(() => {
     const socket = new WebSocket(SERVER_URL);
@@ -71,7 +71,7 @@ function App() {
 
   return (
     <div className="container" style={{ textAlign: 'center', padding: 20 }}>
-      <h1>🐔🍌 Chicken Banana Game! (Real-time)</h1>
+      <h1>🐔🍌 Chicken Banana Game!</h1>
       <p>You are playing as: <strong>{playerType === 'chicken' ? '🐔 Chicken' : '🍌 Banana'}</strong></p>
 
       <div style={{
