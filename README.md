@@ -35,6 +35,7 @@ A real-time, multiplayer tile-revealing game built with React and WebSockets. Pl
    ```
 3. Start the development server:
    ```sh
+   node src/server.js
    npm start
    ```
    Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
