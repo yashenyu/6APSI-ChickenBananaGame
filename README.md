@@ -42,8 +42,8 @@ A real-time, multiplayer tile-revealing game built with React and WebSockets. Pl
 ## Gameplay
 
 - Choose to play as either a Chicken or a Banana.
-- Work with your teammate to reveal all the tiles on the game board.
-- The first team to reveal all their tiles wins!
+- Reveal all the correct tiles on the game board.
+- The first team to reveal all their tiles or not make any mistake wins!
 
 ## Technologies Used
 
