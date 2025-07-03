@@ -12,8 +12,8 @@ A real-time, multiplayer tile-revealing game built with React and WebSockets. Pl
 ## Screenshots
 
 <!-- Add your screenshots here -->
-![Game Board Screenshot](screenshots/game-board.png)
-![Win Screen Screenshot](screenshots/win-screen.png)
+![Lose Screen Screenshot](public/images/lose.png)
+![Win Screen Screenshot](public/images/win.png)
 
 ## Getting Started
 
