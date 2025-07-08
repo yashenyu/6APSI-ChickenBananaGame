@@ -1,6 +1,6 @@
 # Chicken Banana Game 🐔🍌
 
-A real-time, multiplayer tile-revealing game built with React and WebSockets. Play as either a chicken or a banana and race to reveal all your tiles before your opponent!
+A real-time, multiplayer tile-revealing game built with React. Play as either a chicken or a banana and race to reveal all your tiles before your opponent!
 
 ## Features
 
