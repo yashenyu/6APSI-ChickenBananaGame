@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 const chickenImg = 'https://thumbs.dreamstime.com/z/full-body-brown-chicken-hen-standing-isolated-white-backgroun-background-use-farm-animals-livestock-theme-49741285.jpg?ct=jpeg';
 const bananaImg = 'https://thumbs.dreamstime.com/b/bunch-bananas-6175887.jpg?w=768';
 
-function generateBoard(size = 12) {
+function generateBoard(size = 36) { 
   const chicken = Array(size / 2).fill('chicken');
   const banana = Array(size / 2).fill('banana');
   const board = chicken.concat(banana);
@@ -60,6 +60,20 @@ function App() {
   return (
     <div className="container" style={{ textAlign: 'center', padding: 20 }}>
       <h1>Chicken Banana Game!</h1>
+      <button
+        onClick={() => {
+          setPlayerType(null);
+          setBoard([]);
+          setClickedIndices([]);
+          setGameOver(false);
+          setWinner(null);
+          setMistakeIndex(null);
+          setRevealAll(false);
+        }}
+        style={{ position: 'absolute', top: 20, right: 20, padding: '8px 16px', fontSize: 14 }}
+      >
+        Reset
+      </button>
       {!playerType && (
         <div className="select-player">
           <button onClick={() => startGame('chicken')}>Play as Chicken 🐔</button>
@@ -71,10 +85,10 @@ function App() {
           <p>You are playing as: <strong>{playerType === 'chicken' ? '🐔 Chicken' : '🍌 Banana'}</strong></p>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 100px)',
-            gridGap: 10,
+            gridTemplateColumns: 'repeat(6, 60px)',
+            gridGap: 6,
             justifyContent: 'center',
-            marginTop: 20,
+            marginTop: 10,
           }}>
             {board.length === 0 && <p>Loading board...</p>}
             {board.map((img, idx) => {
@@ -85,17 +99,18 @@ function App() {
                   key={idx}
                   onClick={() => handleTileClick(idx)}
                   style={{
-                    width: 100,
-                    height: 100,
+                    width: 60,
+                    height: 60,
                     border: '2px solid #ccc',
                     backgroundColor: isMistake ? '#ffcccc' : (isRevealed ? 'white' : '#eee'),
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     cursor: gameOver || isRevealed ? 'default' : 'pointer',
-                    fontSize: 24,
+                    fontSize: 16,
                     fontWeight: 'bold',
                     userSelect: 'none',
+                    padding: 0,
                   }}
                 >
                   {isRevealed ? (
