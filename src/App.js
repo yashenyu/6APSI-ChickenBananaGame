@@ -1,125 +1,131 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 
 const chickenImg = 'https://thumbs.dreamstime.com/z/full-body-brown-chicken-hen-standing-isolated-white-backgroun-background-use-farm-animals-livestock-theme-49741285.jpg?ct=jpeg';
 const bananaImg = 'https://thumbs.dreamstime.com/b/bunch-bananas-6175887.jpg?w=768';
 
+function generateBoard(size = 12) {
+  const chicken = Array(size / 2).fill('chicken');
+  const banana = Array(size / 2).fill('banana');
+  const board = chicken.concat(banana);
+  for (let i = board.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [board[i], board[j]] = [board[j], board[i]];
+  }
+  return board;
+}
+
 function App() {
-  const [ws, setWs] = useState(null);
+  const [playerType, setPlayerType] = useState(null);
   const [board, setBoard] = useState([]);
   const [clickedIndices, setClickedIndices] = useState([]);
-  const [playerType, setPlayerType] = useState(null);
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(null);
-  const [playerId, setPlayerId] = useState(null);
-  const wsRef = useRef(null);
+  const [mistakeIndex, setMistakeIndex] = useState(null);
+  const [revealAll, setRevealAll] = useState(false);
 
-  // Change this to your server's IP if testing on another device on LAN
-  const SERVER_URL = 'ws://localhost:8080';
-
-  useEffect(() => {
-    const socket = new WebSocket(SERVER_URL);
-    wsRef.current = socket;
-
-    socket.onopen = () => {
-      console.log('Connected to server');
-    };
-
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('Message received:', data);
-
-      if (data.type === 'init') {
-        setBoard(data.state.board);
-        setClickedIndices(data.state.clickedIndices || []);
-        setGameOver(data.state.gameOver);
-        setWinner(data.state.winner);
-        setPlayerType(data.playerType);
-        setPlayerId(data.playerId);
-      }
-
-      if (data.type === 'update') {
-        setBoard(data.state.board);
-        setClickedIndices(data.state.clickedIndices || []);
-        setGameOver(data.state.gameOver);
-        setWinner(data.state.winner);
-      }
-    };
-
-    socket.onclose = () => {
-      console.log('Disconnected from server');
-    };
-
-    setWs(socket);
-
-    return () => socket.close();
-  }, [SERVER_URL]);
-
-  const handleTileClick = (index) => {
-    if (gameOver || clickedIndices.includes(index)) return;
-    if (!ws) return;
-
-    ws.send(JSON.stringify({ type: 'click', index }));
+  const startGame = (type) => {
+    setPlayerType(type);
+    const newBoard = generateBoard();
+    setBoard(newBoard);
+    setClickedIndices([]);
+    setGameOver(false);
+    setWinner(null);
+    setMistakeIndex(null);
+    setRevealAll(false);
   };
 
-  const handleReset = () => {
-    if (ws) {
-      ws.send(JSON.stringify({ type: 'reset' }));
+  const handleTileClick = (idx) => {
+    if (gameOver || clickedIndices.includes(idx)) return;
+    const tile = board[idx];
+    if (tile !== playerType) {
+      setGameOver(true);
+      setWinner(playerType === 'chicken' ? 'banana' : 'chicken');
+      setMistakeIndex(idx);
+    } else {
+      const newClicked = [...clickedIndices, idx];
+      setClickedIndices(newClicked);
+      const totalTarget = board.filter(i => i === playerType).length;
+      const playerClicks = newClicked.filter(i => board[i] === playerType).length;
+      if (playerClicks === totalTarget) {
+        setGameOver(true);
+        setWinner(playerType);
+      }
     }
   };
 
-  const getImageUrl = (img) => (img === 'chicken' ? chickenImg : bananaImg);
+  const handleRevealAll = () => {
+    setRevealAll(true);
+  };
 
   return (
     <div className="container" style={{ textAlign: 'center', padding: 20 }}>
-      <h1>🐔🍌 Chicken Banana Game!</h1>
-      <p>You are playing as: <strong>{playerType === 'chicken' ? '🐔 Chicken' : '🍌 Banana'}</strong></p>
-
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 100px)',
-        gridGap: 10,
-        justifyContent: 'center',
-        marginTop: 20,
-      }}>
-        {board.length === 0 && <p>Loading board...</p>}
-        {board.map((img, idx) => (
-          <div
-            key={idx}
-            onClick={() => handleTileClick(idx)}
-            style={{
-              width: 100,
-              height: 100,
-              border: '2px solid #ccc',
-              backgroundColor: clickedIndices.includes(idx) ? 'white' : '#eee',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: gameOver || clickedIndices.includes(idx) ? 'default' : 'pointer',
-              fontSize: 24,
-              fontWeight: 'bold',
-              userSelect: 'none',
-            }}
-          >
-            {clickedIndices.includes(idx) ? (
-              <img src={getImageUrl(img)} alt="revealed" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              idx + 1
-            )}
-          </div>
-        ))}
-      </div>
-
-      {gameOver && (
-        <div style={{ marginTop: 20 }}>
-          <h2>
-            {winner === playerType
-              ? '🎉 You Win! +5 Points!'
-              : '❌ You Lost!'}
-          </h2>
-          <button onClick={handleReset} style={{ padding: '10px 20px', fontSize: 18 }}>
-            Play Again
-          </button>
+      <h1>Chicken Banana Game!</h1>
+      {!playerType && (
+        <div className="select-player">
+          <button onClick={() => startGame('chicken')}>Play as Chicken 🐔</button>
+          <button onClick={() => startGame('banana')}>Play as Banana 🍌</button>
         </div>
+      )}
+      {playerType && (
+        <>
+          <p>You are playing as: <strong>{playerType === 'chicken' ? '🐔 Chicken' : '🍌 Banana'}</strong></p>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 100px)',
+            gridGap: 10,
+            justifyContent: 'center',
+            marginTop: 20,
+          }}>
+            {board.length === 0 && <p>Loading board...</p>}
+            {board.map((img, idx) => {
+              const isRevealed = clickedIndices.includes(idx) || revealAll || (gameOver && mistakeIndex === idx);
+              const isMistake = mistakeIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  onClick={() => handleTileClick(idx)}
+                  style={{
+                    width: 100,
+                    height: 100,
+                    border: '2px solid #ccc',
+                    backgroundColor: isMistake ? '#ffcccc' : (isRevealed ? 'white' : '#eee'),
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    cursor: gameOver || isRevealed ? 'default' : 'pointer',
+                    fontSize: 24,
+                    fontWeight: 'bold',
+                    userSelect: 'none',
+                  }}
+                >
+                  {isRevealed ? (
+                    <img src={img === 'chicken' ? chickenImg : bananaImg} alt={img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <span className="hidden-tile">{idx + 1}</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {gameOver && (
+            <div style={{ marginTop: 20 }}>
+              <h2>
+                {winner === playerType
+                  ? '🎉 You Win! +5 Points!'
+                  : '❌ You Lost!'}
+              </h2>
+              <button onClick={() => startGame(playerType)} style={{ padding: '10px 20px', fontSize: 18 }}>
+                Play Again
+              </button>
+              <button onClick={handleRevealAll} style={{ padding: '10px 20px', fontSize: 18 }}>
+                Reveal All Tiles
+              </button>
+            </div>
+          )}
+          {!gameOver && (
+            <button onClick={handleRevealAll} style={{ marginTop: 20 }}>Reveal All Tiles</button>
+          )}
+        </>
       )}
     </div>
   );
